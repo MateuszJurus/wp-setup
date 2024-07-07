@@ -1,26 +1,26 @@
 services:
   wordpress:
     image: wordpress:latest
-    container_name: wordpress
+    container_name: ${DOCKER_WP_CONTAINER}
     restart: always
     ports:
       - "8080:80"
     environment:
       WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_DB_NAME: wordpress
     volumes:
       - wordpress_data:/var/www/html
 
   db:
     image: mysql:5.7
-    container_name: wordpress_db
+    container_name: ${DOCKER_DB_CONTAINER}
     restart: always
     environment:
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpress
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - db_data:/var/lib/mysql

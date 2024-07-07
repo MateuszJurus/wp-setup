@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Color output setup
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
@@ -22,7 +23,7 @@ set +a
 handle_error() {
     local lineno=$1
     local message=$2
-    echo "Error on line $lineno: $message"
+    echo -e "${RED}Error on line $lineno: $message${NC}"
     exit 1
 }
 
@@ -58,6 +59,13 @@ run_in_container "wp core install --url=$WP_URL --title=$WP_TITLE --admin_user=$
 # Remove default plugins
 echo "Uninstalling default plugins"
 run_in_container 'wp plugin uninstall --all --allow-root' "$DOCKER_WP_CONTAINER" || handle_error $LINENO "Failed to uninstall default plugins"
+
+# Install GIT
+echo "Installing GIT and pulling repo into container"
+run_in_container 'apt-get update' "$DOCKER_WP_CONTAINER" || handle_error $LINENO "Failed to update apt-get"
+run_in_container 'apt-get install git -y' "$DOCKER_WP_CONTAINER" || handle_error $LINENO "Failed to install GIT"
+run_in_container 'git clone https://github.com/MateuszJurus/studies.git ./wp-content/themes/studies' "$DOCKER_WP_CONTAINER" || handle_error $LINENO "Failed to clone repo"
+run_in_container 'wp theme activate studies --allow-root' "$DOCKER_WP_CONTAINER" || handle_error $LINENO "Failed to activate theme"
 
 # Ready message
 echo -e "Your local environment is ready and can be accessed in your browser at ${GREEN}http://$WP_URL${NC}"
